@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+@theme {
+  /* Core palette – slate-navy hybrid */
+  --color-panelBg: rgba(15, 23, 42, 0.7);
+  --color-panelBorder: rgba(255, 255, 255, 0.08);
+  --color-accentBlue: #58a6ff;
+  --color-accentCyan: #22d3ee;
+  --color-accentPurple: #a78bfa;
+  --color-accentGold: #f59e0b;
+  --color-statusSuccess: #10b981;
+  --color-statusWarning: #f59e0b;
+  --color-statusDanger: #ef4444;
+  --color-foreground: #e2e8f0;
+  --color-background: #020b18;
+  --font-inter: "Inter", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: #e2e8f0;
+  background: #020b18;
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===================================
+   GLASSMORPHISM PANEL
+   =================================== */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.glass-panel:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+/* ===================================
+   ANIMATIONS
+   =================================== */
+@keyframes fadeIn {
+  0%   { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulseRed {
+  0%   { box-shadow: 0 0 0 0   rgba(239, 68, 68, 0.4); }
+  70%  { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(239, 68, 68, 0); }
+}
+@keyframes floatUp {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+.animate-fadeIn  { animation: fadeIn 0.5s ease both; }
+.animate-pulseRed { animation: pulseRed 2s ease infinite; }
+.animate-floatUp  { animation: floatUp 4s ease-in-out infinite; }
+
+/* ===================================
+   SCROLLBAR
+   =================================== */
+.news-list-scrollbar::-webkit-scrollbar { width: 4px; }
+.news-list-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.news-list-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+/* ===================================
+   CUSTOM RANGE SLIDER
+   =================================== */
+.custom-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.custom-slider:focus { outline: none; }
+.custom-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background: #22d3ee;
+  margin-top: -8px;
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.custom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.8);
+}
+
+/* ===================================
+   REACT FLOW OVERRIDES
+   =================================== */
+.react-flow__background { opacity: 0.4 !important; }
+.react-flow__attribution { display: none !important; }
+.react-flow__edge-path { stroke-opacity: 0.7 !important; }
+.react-flow__edge-textbg { fill: #0f172a !important; }
+.react-flow__edge-text { fill: #94a3b8 !important; font-size: 11px !important; }
+.react-flow__controls {
+  background: rgba(15, 23, 42, 0.9) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+}
+.react-flow__controls-button {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  color: #94a3b8 !important;
+  fill: #94a3b8 !important;
+}
+.react-flow__controls-button:hover {
+  background: rgba(255,255,255,0.05) !important;
+}
