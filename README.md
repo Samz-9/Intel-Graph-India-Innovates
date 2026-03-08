@@ -1,11 +1,9 @@
 
 # 🌍 Mini Global Intelligence Graph – India-Centric
 
-![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![Next.js](https://img.shields.io/badge/Next.js-15-black)
 ![React](https://img.shields.io/badge/React-18-blue)
-![Tailwind](https://img.shields.io/badge/TailwindCSS-UI-38B2AC)
-![AI](https://img.shields.io/badge/AI-OpenAI-green)
-![Status](https://img.shields.io/badge/Project-Hackathon-blueviolet)
+![Tailwind](https://img.shields.io/badge/TailwindCSS-UI-38B2AC) 
 
 An **AI-powered geopolitical intelligence dashboard** that analyzes global signals using **real news + economic indicators** and visualizes relationships between major world powers.
 
