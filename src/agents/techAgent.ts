@@ -13,5 +13,5 @@ export function techAgent(input: SimulationInput): AgentInsight {
     severity = 'warning';
   }
 
-  return { agent: 'Tech Agent', domain: 'Semiconductors · AI · Space · Digital Infra', insight, severity };
+  return { agent: 'Yantra Agent', domain: 'Semiconductors · AI · Space · Digital Infra', insight, severity };
 }

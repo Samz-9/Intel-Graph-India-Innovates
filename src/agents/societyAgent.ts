@@ -13,5 +13,5 @@ export function societyAgent(input: SimulationInput): AgentInsight {
     severity = 'warning';
   }
 
-  return { agent: 'Society Agent', domain: 'Public Health · Labor · Education · Sentiment', insight, severity };
+  return { agent: 'Samaj Agent', domain: 'Public Health · Labor · Education · Sentiment', insight, severity };
 }

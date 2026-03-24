@@ -31,7 +31,7 @@ export function HeroSection() {
           transition={{ delay: 0.35, duration: 0.7 }}
           className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight text-slate-100 mb-6"
         >
-          Mini Global{' '}
+          Global{' '}
           <span
             className="block bg-linear-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent"
             style={{ WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}

@@ -23,5 +23,5 @@ export function econAgent(input: SimulationInput): AgentInsight {
     insight = `Oil price drop of ${oilPriceChange}% reduces India's input costs. Inflation eases by ~${Math.abs((oilPriceChange / 20) * 2).toFixed(1)}%. Trade deficit narrows.`;
   }
 
-  return { agent: 'Econ Agent', domain: 'Trade · GDP · Inflation · MSMEs', insight, severity };
+  return { agent: 'Artha Agent', domain: 'Trade · GDP · Inflation · MSMEs', insight, severity };
 }

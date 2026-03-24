@@ -29,7 +29,7 @@ export function AgentInsights({ result }: AgentInsightsProps) {
       >
         <div className="flex items-center gap-2 mb-3">
           <Bot size={16} className="text-accentBlue" />
-          <span className="font-bold text-sm tracking-wide">Orchestrator — Executive Summary</span>
+          <span className="font-bold text-sm tracking-wide">Sutra — Executive Summary</span>
         </div>
         <p className="text-sm text-[#cdd9e5] leading-relaxed">{result.executiveSummary}</p>
       </motion.div>

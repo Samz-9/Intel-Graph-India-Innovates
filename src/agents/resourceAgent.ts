@@ -15,5 +15,5 @@ export function resourceAgent(input: SimulationInput): AgentInsight {
     insight = `Oil price drop eases energy cost pressure. Good time to maintain strategic petroleum reserves. Renewable transition can proceed without emergency subsidy pressure.`;
   }
 
-  return { agent: 'Resource Agent', domain: 'Energy · Climate · AQI · Water · Agriculture', insight, severity };
+  return { agent: 'Shakti Agent', domain: 'Energy · Climate · AQI · Water · Agriculture', insight, severity };
 }

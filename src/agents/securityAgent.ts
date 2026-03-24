@@ -13,5 +13,5 @@ export function securityAgent(input: SimulationInput): AgentInsight {
     severity = 'warning';
   }
 
-  return { agent: 'Security Agent', domain: 'Defense · Geopolitics · Border · Cyber', insight, severity };
+  return { agent: 'Raksha Agent', domain: 'Defense · Geopolitics · Border · Cyber', insight, severity };
 }
