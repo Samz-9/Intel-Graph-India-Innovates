@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useState } from 'react';
 
 import { useParams } from 'next/navigation';
 import { notFound } from 'next/navigation';
@@ -20,13 +21,13 @@ import {
   ReferenceLine,
 } from 'recharts';
 
-import { ECONOMIC_DATA } from '@/lib/economicData';
+// import { ECONOMIC_DATA } from '@/lib/economicData';
 
 /* ── Fade-up stagger helper ── */
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 22 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1], delay },
+  transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as [number, number, number, number], delay },
 });
 
 const countryFlags: Record<string, string> = {
@@ -43,9 +44,6 @@ const countryDetails: Record<
     accent: string;
     glow: string;
     tagline: string;
-    gdpGrowth: number[];
-    tradeBalance: number[];
-    radarData: { subject: string; value: number }[];
   }
 > = {
   India: {
@@ -53,71 +51,36 @@ const countryDetails: Record<
     accent: '#06b6d4',
     glow: 'rgba(34,211,238,0.18)',
     tagline: 'Emerging Powerhouse · South Asia',
-    gdpGrowth: [6.5, 7.0, 7.2, 6.8, 7.4, 7.2],
-    tradeBalance: [-180, -195, -210, -185, -220, -230],
-    radarData: [
-      { subject: 'GDP Growth', value: 80 },
-      { subject: 'Stability', value: 62 },
-      { subject: 'Trade', value: 70 },
-      { subject: 'Inflation', value: 50 },
-      { subject: 'Diplomacy', value: 75 },
-      { subject: 'Defense', value: 65 },
-    ],
   },
   USA: {
     color: '#38bdf8',
     accent: '#0ea5e9',
     glow: 'rgba(56,189,248,0.18)',
     tagline: 'Global Superpower · North America',
-    gdpGrowth: [2.1, 2.3, 1.9, 2.5, 2.2, 2.0],
-    tradeBalance: [-600, -650, -580, -710, -680, -700],
-    radarData: [
-      { subject: 'GDP Growth', value: 55 },
-      { subject: 'Stability', value: 85 },
-      { subject: 'Trade', value: 90 },
-      { subject: 'Inflation', value: 70 },
-      { subject: 'Diplomacy', value: 80 },
-      { subject: 'Defense', value: 98 },
-    ],
   },
   China: {
     color: '#818cf8',
     accent: '#6366f1',
     glow: 'rgba(129,140,248,0.18)',
     tagline: 'Strategic Challenger · East Asia',
-    gdpGrowth: [5.2, 4.9, 5.1, 4.6, 4.8, 5.0],
-    tradeBalance: [700, 820, 750, 900, 850, 870],
-    radarData: [
-      { subject: 'GDP Growth', value: 65 },
-      { subject: 'Stability', value: 55 },
-      { subject: 'Trade', value: 85 },
-      { subject: 'Inflation', value: 88 },
-      { subject: 'Diplomacy', value: 45 },
-      { subject: 'Defense', value: 82 },
-    ],
   },
   Russia: {
     color: '#60a5fa',
     accent: '#3b82f6',
     glow: 'rgba(96,165,250,0.18)',
     tagline: 'Energy Giant · Eastern Europe',
-    gdpGrowth: [1.5, 2.1, -2.2, 0.8, 1.2, 1.8],
-    tradeBalance: [120, 180, 210, 150, 170, 160],
-    radarData: [
-      { subject: 'GDP Growth', value: 30 },
-      { subject: 'Stability', value: 40 },
-      { subject: 'Trade', value: 50 },
-      { subject: 'Inflation', value: 35 },
-      { subject: 'Diplomacy', value: 30 },
-      { subject: 'Defense', value: 78 },
-    ],
   },
 };
-
+const countryMap: Record<string, string> = {
+  India: 'IND',
+  USA: 'USA',
+  China: 'CHN',
+  Russia: 'RUS'
+};
 const QUARTERS = ['Q1 24', 'Q2 24', 'Q3 24', 'Q4 24', 'Q1 25', 'Q2 25'];
 
 /* ── Custom tooltip ── */
-function CustomTooltip({ active, payload, label, color }: any) {
+function CustomTooltip({ active, payload, label, color }: { active?: boolean; payload?: Array<{ value: number; dataKey: string }>; label?: string; color: string }) {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
@@ -198,18 +161,62 @@ function ChartLabel({ children }: { children: React.ReactNode }) {
 }
 
 export default function CountryPage() {
+
   const params = useParams();
   const name = decodeURIComponent(params.name as string);
+ 
+  interface CountryApiData {
+    radar: {
+      gdpGrowth: number;
+      stability: number;
+      trade: number;
+      inflation: number;
+      diplomacy: number;
+      defense: number;
+    };
+    stats: {
+      gdp: number;
+      inflation: number;
+      population: number;
+      stability: number;
+      military: number;
+      diplomacy: string | number;
+      partners: string[];
+      gdpGrowthHistory?: { date: string; value: number }[];
+      tradeBalanceHistory?: { date: string; value: number }[];
+    };
+  }
 
-  const data = ECONOMIC_DATA[name as keyof typeof ECONOMIC_DATA];
+  const [apiData, setApiData] = useState<Record<string, CountryApiData> | null>(null);
+
+  useEffect(() => {
+    fetch('/api/cabinet')
+      .then(res => res.json())
+      .then(data => setApiData(data));
+  }, []);
+
+  const code = countryMap[name];
+  const data = apiData?.[code];
   const details = countryDetails[name];
 
-  if (!data || !details) return notFound();
-
+  if (!details) return notFound();
+  if (!data) return <div style={{ padding: 40 }}>Loading intelligence...</div>;
+ 
   const { color, accent, glow, tagline } = details;
-
-  const gdpData = QUARTERS.map((q, i) => ({ quarter: q, growth: details.gdpGrowth[i] }));
-  const tradeData = QUARTERS.map((q, i) => ({ quarter: q, balance: details.tradeBalance[i] }));
+  const radarData = [
+    { subject: 'GDP Growth', value: data.radar.gdpGrowth },
+    { subject: 'Stability', value: data.radar.stability },
+    { subject: 'Trade', value: data.radar.trade },
+    { subject: 'Inflation', value: data.radar.inflation },
+    { subject: 'Diplomacy', value: data.radar.diplomacy },
+    { subject: 'Defense', value: data.radar.defense },
+  ];
+  const gdpData = data.stats.gdpGrowthHistory && data.stats.gdpGrowthHistory.length > 0
+    ? data.stats.gdpGrowthHistory.slice(0, 6).reverse().map((h: { date: string; value: number }) => ({ quarter: h.date, growth: Number(h.value?.toFixed(2)) || 0 }))
+    : QUARTERS.map((q) => ({ quarter: q, growth: 0 }));
+  const tradeData = data.stats.tradeBalanceHistory && data.stats.tradeBalanceHistory.length > 0
+    ? data.stats.tradeBalanceHistory.slice(0, 6).reverse().map((h: { date: string; value: number }) => ({ quarter: h.date, balance: Number((h.value / 1e9).toFixed(2)) || 0 }))
+    : QUARTERS.map((q) => ({ quarter: q, balance: 0 }));
 
   const axisStyle = { fill: 'rgba(148,210,255,0.4)', fontSize: 11, fontFamily: 'inherit' };
   const gridStyle = { stroke: 'rgba(56,189,248,0.07)', strokeDasharray: '4 4' };
@@ -294,10 +301,10 @@ export default function CountryPage() {
               </div>
 
               {/* Stat badges row */}
-              <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
-                <StatBadge label="GDP" value={data.gdp} color={color} />
-                <StatBadge label="Inflation" value={data.inflation} color={color} />
-                <StatBadge label="Partners" value={data.trade.length.toString()} color={color} />
+              <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}> 
+                <StatBadge label="GDP" value={(data.stats.gdp / 1e12).toFixed(2) + 'T'} color={color} />
+                <StatBadge label="Inflation" value={data.stats.inflation?.toFixed(2) + '%'} color={color} />
+                <StatBadge label="Population" value={data.stats.population > 1e9 ? (data.stats.population / 1e9).toFixed(2) + 'B' : (data.stats.population / 1e6).toFixed(0) + 'M'} color={color} />
               </div>
             </div>
           </div>
@@ -309,7 +316,7 @@ export default function CountryPage() {
           {/* GDP Growth */}
           <motion.div {...fadeUp(0.1)} style={{ gridColumn: '1 / 3' }}>
             <Panel>
-              <ChartLabel>GDP Growth — Last 6 Quarters</ChartLabel>
+              <ChartLabel>GDP Growth — Historical Trend</ChartLabel>
               <ResponsiveContainer width="100%" height={230}>
                 <LineChart data={gdpData}>
                   <defs>
@@ -327,7 +334,7 @@ export default function CountryPage() {
                     type="monotone" dataKey="growth"
                     stroke={color} strokeWidth={2.5}
                     dot={{ fill: color, r: 4, strokeWidth: 0 }}
-                    activeDot={{ r: 6, fill: color, boxShadow: `0 0 12px ${color}` }}
+                    activeDot={{ r: 6, fill: color }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -339,7 +346,7 @@ export default function CountryPage() {
             <Panel style={{ height: '100%' }}>
               <ChartLabel>Capability Index</ChartLabel>
               <ResponsiveContainer width="100%" height={230}>
-                <RadarChart data={details.radarData} outerRadius="72%">
+                <RadarChart data={radarData} outerRadius="72%">
                   <PolarGrid stroke={`${color}18`} />
                   <PolarAngleAxis dataKey="subject" tick={{ fill: `${color}70`, fontSize: 10, fontFamily: 'DM Sans, sans-serif' }} />
                   <Radar
@@ -355,7 +362,7 @@ export default function CountryPage() {
         {/* ══ TRADE BALANCE ══ */}
         <motion.div {...fadeUp(0.26)}>
           <Panel>
-            <ChartLabel>Trade Balance — Last 6 Quarters (B USD)</ChartLabel>
+            <ChartLabel>Trade Balance — Historical Trend (B USD)</ChartLabel>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={tradeData} barSize={32}>
                 <defs>
@@ -376,30 +383,34 @@ export default function CountryPage() {
           </Panel>
         </motion.div>
 
-        {/* ══ TRADE PARTNERS ══ */}
+        {/* ══ ADDITIONAL INDICATORS ══ */}
         <motion.div {...fadeUp(0.34)}>
           <Panel>
-            <ChartLabel>Key Trade Partners</ChartLabel>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-              {data.trade.map((partner: string, i: number) => (
+            <ChartLabel>Additional Intelligence Data</ChartLabel>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+              {[
+                { label: 'Military Exp.', value: data.stats.military?.toFixed(2) + '% of GDP' },
+                { label: 'Pol. Stability', value: data.stats.stability?.toFixed(2) + ' Index' },
+                { label: 'Diplomacy', value: data.stats.diplomacy },
+              ].map((stat: { label: string; value: string | number }, i: number) => (
                 <motion.div
-                  key={partner}
+                  key={stat.label}
                   initial={{ opacity: 0, scale: 0.85 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.38 + i * 0.06, duration: 0.3 }}
                   style={{
-                    padding: '7px 14px',
+                    padding: '10px 18px',
                     background: `${color}0f`,
                     border: `1px solid ${color}22`,
-                    borderRadius: 8,
-                    fontSize: 12, fontWeight: 500,
-                    color: 'rgba(200,230,255,0.8)',
-                    cursor: 'default',
+                    borderRadius: 10,
+                    display: 'flex', flexDirection: 'column', gap: 4,
+                    minWidth: 140,
                     transition: 'background 0.2s, border-color 0.2s',
                   }}
                   whileHover={{ background: `${color}20`, borderColor: `${color}45` }}
                 >
-                  {partner}
+                  <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(200,230,255,0.5)', textTransform: 'uppercase', letterSpacing: 1.2 }}>{stat.label}</span>
+                  <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.95)' }}>{stat.value}</span>
                 </motion.div>
               ))}
             </div>

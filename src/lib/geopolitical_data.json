@@ -1,0 +1,18 @@
+{
+  "USA": {
+    "diplomacy": 82.7,
+    "partners": ["Mexico", "Canada", "China", "Germany", "Japan"]
+  },
+  "CHN": {
+    "diplomacy": 97.7,
+    "partners": ["United States", "South Korea", "Japan", "Taiwan", "Vietnam"]
+  },
+  "IND": {
+    "diplomacy": 70.8,
+    "partners": ["United States", "China", "UAE", "Russia", "Saudi Arabia"]
+  },
+  "RUS": {
+    "diplomacy": 57.7,
+    "partners": ["China", "India", "Turkey", "Belarus", "Kazakhstan"]
+  }
+}
