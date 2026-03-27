@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Network, Globe, Zap, Activity } from 'lucide-react';
+import { Network, Zap, Activity } from 'lucide-react';
 
 interface Relationship {
   source: string;
@@ -97,7 +97,7 @@ export function InterdependencyGraph() {
                
             </motion.div>
             <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-6">
-               Strategic <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Interdependency</span> Matrix
+               Strategic <span className="text-transparent bg-clip-text bg-linear-to-r from-cyan-400 to-emerald-400">Interdependency</span> Matrix
             </h2>
             <p className="text-white/50 text-lg leading-relaxed">
               AI-driven extraction of geopolitical threads between the four major power centers. Hover a nation to view its strategic web.
@@ -136,7 +136,7 @@ export function InterdependencyGraph() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.1 }}
                     whileHover={{ scale: 1.02 }}
-                    className={`group relative p-6 rounded-2xl border ${activeBorder} bg-gradient-to-br ${activeColor} ${activeGlow} transition-all duration-300 backdrop-blur-sm shadow-xl`}
+                    className={`group relative p-6 rounded-2xl border ${activeBorder} bg-linear-to-br ${activeColor} ${activeGlow} transition-all duration-300 backdrop-blur-sm shadow-xl`}
                   >
                     <div className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-2">
