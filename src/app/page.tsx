@@ -2,8 +2,8 @@ import { BackgroundVideo } from '@/components/BackgroundVideo';
 import { Navbar } from '@/components/Navbar';
 import { HeroSection } from '@/components/HeroSection';
 import { AboutSection } from '@/components/AboutSection';
-import { NewsPreview } from '@/components/NewsPreview';
-import { DashboardPreview } from '@/components/DashboardPreview';
+import { InterdependencyGraph } from '@/components/InterdependencyGraph';
+import { NewsPreview } from '@/components/NewsPreview'; 
 import { ContactSection } from '@/components/ContactSection';
 
 export default function HomePage() {
@@ -17,12 +17,17 @@ export default function HomePage() {
       {/* Top navigation */}
       <Navbar />
 
-      {/* Page sections */}
-      <HeroSection />
-      <AboutSection />
-      <NewsPreview />
-      <DashboardPreview />
-      <ContactSection />
+      {/* Page sections wrapper to ensure they are above the background */}
+      <main className="relative z-10">
+        <HeroSection />
+        <AboutSection />
+        
+        {/* New AI Interdependency Matrix */}
+        <InterdependencyGraph />
+
+        <NewsPreview /> 
+        <ContactSection />
+      </main>
     </div>
   );
 }

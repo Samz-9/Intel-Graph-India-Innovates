@@ -60,10 +60,17 @@ const STATS = [
     border: 'border-cyan-500/30',
     glow: 'shadow-cyan-500/20',
     textColor: 'text-cyan-400',
+    details: [
+      { label: 'India', value: 'Primary Focus', bar: 100 },
+      { label: 'USA', value: 'Allied', bar: 85 },
+      { label: 'China', value: 'Adversary', bar: 72 },
+      { label: 'Russia', value: 'Monitored', bar: 60 },
+    ],
+    tooltip: 'Real-time geopolitical monitoring across 4 major powers.',
   },
   {
     label: 'Graph Edges',
-    value: 8,
+    value: 15,
     sub: 'Geopolitical connections',
     icon: '⬡',
     color: 'violet',
@@ -71,6 +78,14 @@ const STATS = [
     border: 'border-violet-500/30',
     glow: 'shadow-violet-500/20',
     textColor: 'text-violet-400',
+    details: [
+      { label: 'Trade Links', value: '5 edges', bar: 75 },
+      { label: 'Alliance', value: '3 edges', bar: 50 },
+      { label: 'Tension', value: '3 edges', bar: 50 },
+      { label: 'Sanction', value: '1 edge', bar: 25 },
+      { label: 'Partnership', value: '2 edge', bar: 40 },
+    ],
+    tooltip: 'Knowledge graph edges represent active geopolitical relationships.',
   },
   {
     label: 'News Analyzed',
@@ -82,6 +97,13 @@ const STATS = [
     border: 'border-emerald-500/30',
     glow: 'shadow-emerald-500/20',
     textColor: 'text-emerald-400',
+    details: [
+      { label: 'High Priority', value: '6 articles', bar: 92 },
+      { label: 'India Focus', value: '11 articles', bar: 85 },
+      { label: 'Sentiment –', value: '9 negative', bar: 65 },
+      { label: 'Last Sync', value: '2 min ago', bar: 100 },
+    ],
+    tooltip: 'AI agents parsed and classified 26 geopolitical articles today.',
   },
   {
     label: 'Alerts Active',
@@ -94,6 +116,13 @@ const STATS = [
     glow: 'shadow-amber-500/20',
     textColor: 'text-amber-400',
     pulse: true,
+    details: [
+      { label: 'India–China Border', value: 'CRITICAL', bar: 95 },
+      { label: 'US Tariff Hike', value: 'HIGH', bar: 70 },
+      { label: 'Escalation Risk', value: '68%', bar: 68 },
+      { label: 'Triggered', value: '18 min ago', bar: 40 },
+    ],
+    tooltip: 'Active threat alerts requiring analyst review.',
   },
 ];
 
@@ -112,13 +141,13 @@ function StatCard({ stat, index }: { stat: typeof STATS[0]; index: number }) {
         bg-[#0a0f1a]/80 backdrop-blur-md
         shadow-lg ${stat.glow}
         cursor-default group
-        transition-all duration-300
+        transition-all duration-500
         ${hovered ? 'shadow-xl scale-[1.02] -translate-y-0.5' : ''}
       `}
-      style={{ padding: '18px 20px' }}
+      style={{ padding: '18px 20px', minHeight: hovered ? '172px' : '100px', transition: 'min-height 0.4s cubic-bezier(0.23,1,0.32,1)' }}
     >
       {/* Gradient wash */}
-      <div className={`absolute inset-0 bg-linear-to-br ${stat.gradient} opacity-60 pointer-events-none`} />
+      <div className={`absolute inset-0 bg-linear-to-br ${stat.gradient} pointer-events-none transition-opacity duration-300 ${hovered ? 'opacity-90' : 'opacity-60'}`} />
 
       {/* Scan line effect */}
       <motion.div
@@ -133,6 +162,7 @@ function StatCard({ stat, index }: { stat: typeof STATS[0]; index: number }) {
         <div className={`absolute top-0 right-0 h-full w-px ${stat.textColor.replace('text', 'bg')} opacity-50`} />
       </div>
 
+      {/* Main row */}
       <div className="relative z-10 flex items-start gap-3">
         <div className={`text-xl mt-0.5 ${stat.textColor} opacity-70 font-mono`}>{stat.icon}</div>
         <div className="flex-1 min-w-0">
@@ -152,6 +182,44 @@ function StatCard({ stat, index }: { stat: typeof STATS[0]; index: number }) {
           </div>
         )}
       </div>
+
+      {/* Hover Detail Panel */}
+      <motion.div
+        initial={false}
+        animate={hovered ? { opacity: 1, y: 0, height: 'auto' } : { opacity: 0, y: -6, height: 0 }}
+        transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+        className="relative z-10 overflow-hidden"
+      >
+        {/* Divider */}
+        <div className={`mt-3 mb-2.5 h-px w-full ${stat.textColor.replace('text', 'bg')} opacity-20`} />
+
+        {/* Tooltip line */}
+        {stat.tooltip && (
+          <p className="text-[9px] font-mono text-white/30 mb-2 leading-relaxed tracking-wide">
+            {stat.tooltip}
+          </p>
+        )}
+
+        {/* Detail rows with mini bar */}
+        <div className="flex flex-col gap-1.5">
+          {(stat.details ?? []).map((d, di) => (
+            <div key={di} className="flex items-center gap-2">
+              <span className="text-[9px] font-mono text-white/40 w-[80px] shrink-0 truncate">{d.label}</span>
+              <div className="flex-1 h-1 rounded-full bg-white/5 overflow-hidden">
+                <motion.div
+                  className={`h-full rounded-full ${stat.textColor.replace('text', 'bg')} opacity-70`}
+                  initial={{ width: 0 }}
+                  animate={hovered ? { width: `${d.bar}%` } : { width: 0 }}
+                  transition={{ duration: 0.5, delay: di * 0.06, ease: [0.23, 1, 0.32, 1] }}
+                />
+              </div>
+              <span className={`text-[9px] font-mono font-semibold ${stat.textColor} opacity-80 w-[56px] text-right shrink-0`}>
+                {d.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
     </motion.div>
   );
 }

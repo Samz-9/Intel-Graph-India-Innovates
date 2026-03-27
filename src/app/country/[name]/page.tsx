@@ -187,22 +187,70 @@ export default function CountryPage() {
     };
   }
 
+  interface AatmanirbharData {
+    id: string;
+    name: string;
+    score: number;
+    breakdown: {
+      tech: number;
+      energy: number;
+      manufacturing: number;
+      food: number;
+      trade: number;
+    };
+    raw: any;
+  }
+
   const [apiData, setApiData] = useState<Record<string, CountryApiData> | null>(null);
+  const [aatmanirbharData, setAatmanirbharData] = useState<AatmanirbharData | null>(null);
 
   useEffect(() => {
+    // Fetch cabinet data
     fetch('/api/cabinet')
       .then(res => res.json())
       .then(data => setApiData(data));
-  }, []);
+
+    // Fetch Aatmanirbhar data
+    fetch('/api/aatmanirbhar')
+      .then(res => res.json())
+      .then((data: AatmanirbharData[]) => {
+        const countryId = countryMap[name];
+        const countryData = data.find(c => c.id === countryId);
+        if (countryData) setAatmanirbharData(countryData);
+      });
+  }, [name]);
 
   const code = countryMap[name];
   const data = apiData?.[code];
   const details = countryDetails[name];
 
   if (!details) return notFound();
-  if (!data) return <div style={{ padding: 40 }}>Loading intelligence...</div>;
+  if (!data) return <div style={{ padding: 40, color: 'rgba(255,255,255,0.4)', fontFamily: 'DM Sans, sans-serif' }}>Loading intelligence...</div>;
  
   const { color, accent, glow, tagline } = details;
+
+  const PillarBar = ({ label, value, delay }: { label: string; value: number, delay: number }) => (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, alignItems: 'center' }}>
+        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: 1.5, textTransform: 'uppercase' }}>{label}</span>
+        <span style={{ fontSize: 12, fontWeight: 800, color, fontFamily: 'Syne, sans-serif' }}>{value}%</span>
+      </div>
+      <div style={{ height: 6, width: '100%', background: 'rgba(255,255,255,0.03)', borderRadius: 10, overflow: 'hidden', position: 'relative' }}>
+        <motion.div 
+          initial={{ width: 0 }}
+          animate={{ width: `${value}%` }}
+          transition={{ duration: 1.2, delay: 0.5 + delay, ease: [0.22, 1, 0.36, 1] }}
+          style={{ 
+            height: '100%', 
+            background: `linear-gradient(90deg, ${color}30, ${color})`,
+            boxShadow: `0 0 10px ${color}40`,
+            borderRadius: 10
+          }} 
+        />
+      </div>
+    </div>
+  );
+
   const radarData = [
     { subject: 'GDP Growth', value: data.radar.gdpGrowth },
     { subject: 'Stability', value: data.radar.stability },
@@ -359,32 +407,74 @@ export default function CountryPage() {
           </motion.div>
         </div>
 
-        {/* ══ TRADE BALANCE ══ */}
-        <motion.div {...fadeUp(0.26)}>
-          <Panel>
-            <ChartLabel>Trade Balance — Historical Trend (B USD)</ChartLabel>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={tradeData} barSize={32}>
-                <defs>
-                  <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={color} stopOpacity={0.9} />
-                    <stop offset="100%" stopColor={accent} stopOpacity={0.5} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid {...gridStyle} />
-                <XAxis dataKey="quarter" tick={axisStyle} axisLine={false} tickLine={false} />
-                <YAxis tick={axisStyle} axisLine={false} tickLine={false} />
-                <ReferenceLine y={0} stroke="rgba(255,255,255,0.15)" />
-                <Tooltip content={<CustomTooltip color={color} />} />
-                <Bar dataKey="balance" fill="url(#barGrad)" radius={[5, 5, 0, 0]}
-                  style={{ filter: `drop-shadow(0 0 6px ${color}50)` }} />
-              </BarChart>
-            </ResponsiveContainer>
-          </Panel>
-        </motion.div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 360px', gap: 16 }}>
+          {/* ══ TRADE BALANCE ══ */}
+          <motion.div {...fadeUp(0.26)}>
+            <Panel style={{ height: '100%' }}>
+              <ChartLabel>Trade Balance — Historical Trend (B USD)</ChartLabel>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={tradeData} barSize={32}>
+                  <defs>
+                    <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={color} stopOpacity={0.9} />
+                      <stop offset="100%" stopColor={accent} stopOpacity={0.5} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid {...gridStyle} />
+                  <XAxis dataKey="quarter" tick={axisStyle} axisLine={false} tickLine={false} />
+                  <YAxis tick={axisStyle} axisLine={false} tickLine={false} />
+                  <ReferenceLine y={0} stroke="rgba(255,255,255,0.15)" />
+                  <Tooltip content={<CustomTooltip color={color} />} />
+                  <Bar dataKey="balance" fill="url(#barGrad)" radius={[5, 5, 0, 0]}
+                    style={{ filter: `drop-shadow(0 0 6px ${color}50)` }} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Panel>
+          </motion.div>
+
+          {/* ══ AATMANIRBHAR (SELF-RELIANCE) INDEX ══ */}
+          <motion.div {...fadeUp(0.32)}>
+            <Panel style={{ height: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+                <ChartLabel>Strategic Sovereignty Index</ChartLabel>
+                {aatmanirbharData && (
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 24, fontWeight: 800, color, fontFamily: 'Syne, sans-serif', lineHeight: 1 }}>
+                      {aatmanirbharData.score}
+                    </div>
+                    <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Overall Score</div>
+                  </div>
+                )}
+              </div>
+
+              {!aatmanirbharData ? (
+                <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>
+                  Calculating Sovereignty Matrix...
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <PillarBar label="Tech & IP Sovereignty" value={aatmanirbharData.breakdown.tech} delay={0.1} />
+                  <PillarBar label="Energy Independence" value={aatmanirbharData.breakdown.energy} delay={0.2} />
+                  <PillarBar label="Physical Production" value={aatmanirbharData.breakdown.manufacturing} delay={0.3} />
+                  <PillarBar label="Agro-Security" value={aatmanirbharData.breakdown.food} delay={0.4} />
+                  <PillarBar label="Supply Chain Autonomy" value={aatmanirbharData.breakdown.trade} delay={0.5} />
+                  
+                  <div style={{ 
+                    marginTop: 10, padding: '10px 12px', background: 'rgba(255,255,255,0.02)', 
+                    borderRadius: 8, border: '1px solid rgba(255,255,255,0.05)' 
+                  }}>
+                    <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, margin: 0 }}>
+                      <span style={{ color, fontWeight: 700 }}>AI ANALYST:</span> This score reflects real-time World Bank data on R&D, energy imports, and manufacturing output relative to global leaders.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </Panel>
+          </motion.div>
+        </div>
 
         {/* ══ ADDITIONAL INDICATORS ══ */}
-        <motion.div {...fadeUp(0.34)}>
+        <motion.div {...fadeUp(0.38)}>
           <Panel>
             <ChartLabel>Additional Intelligence Data</ChartLabel>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
