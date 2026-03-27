@@ -99,17 +99,6 @@ export function ShellLayout({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto">
-        {/* Topbar */}
-        <div className="sticky top-0 z-20 flex items-center justify-between px-8 py-4 border-b border-white/8 bg-[#0d1117]/80 backdrop-blur-md">
-          <div className="text-sm font-medium text-[#8b949e]">
-            {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-xs text-[#8b949e] bg-white/5 border border-white/8 rounded-full px-3 py-1">
-              Cabinet of Five · v1.0
-            </div>
-          </div>
-        </div>
 
         {/* Page content */}
         <motion.div
@@ -117,7 +106,7 @@ export function ShellLayout({ children }: { children: React.ReactNode }) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
-          className="p-8"
+          className=""
         >
           {children}
         </motion.div>

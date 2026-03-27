@@ -1,12 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import dynamic from 'next/dynamic';
-import { RiskCard } from '@/components/RiskCard';
+import dynamic from 'next/dynamic'; 
 import { NewsFeed } from '@/components/NewsFeed';
 
-const GraphViewInteractive = dynamic(
-  () => import('@/components/GraphView').then((m) => m.GraphViewInteractive),
+const GraphViewWorld = dynamic(
+  () => import('@/components/GraphView').then((m) => m.GraphViewWorld),
   {
     ssr: false,
     loading: () => (
@@ -180,7 +179,7 @@ function HeaderBar() {
           <div className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
         </div>
         <span className="text-[11px] font-mono text-white/30 tracking-[0.15em] uppercase">
-          Geopolitical Intelligence Dashboard · v2.4
+          Geopolitical Intelligence Dashboard · v1.0
         </span>
       </div>
       <div className="flex items-center gap-4">
@@ -198,12 +197,11 @@ function HeaderBar() {
   );
 }
 
-export default function DashboardPage() {
-  const [riskScore] = useState(45);
+export default function DashboardPage() { 
 
   return (
     <div
-      className="flex flex-col gap-5 min-h-screen"
+      className="flex flex-col gap-5 h-screen overflow-hidden p-5"
       style={{
         background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(6,182,212,0.08) 0%, transparent 60%), #060c18',
         fontFamily: "'IBM Plex Mono', 'Fira Code', monospace",
@@ -238,15 +236,15 @@ export default function DashboardPage() {
 
       {/* Main content */}
       <div
-        className="grid gap-5 flex-1"
-        style={{ gridTemplateColumns: '1fr 340px', minHeight: '540px' }}
+        className="grid gap-5 flex-1 min-h-0"
+        style={{ gridTemplateColumns: '1fr 340px' }}
       >
         {/* Graph Panel */}
         <motion.div
           initial={{ opacity: 0, x: -12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-          className="relative rounded-2xl overflow-hidden"
+          className="relative flex flex-col rounded-2xl overflow-hidden min-h-0"
           style={{
             border: '1px solid rgba(6,182,212,0.15)',
             background: 'linear-gradient(135deg, rgba(6,182,212,0.04) 0%, rgba(10,15,26,0.95) 60%)',
@@ -263,18 +261,10 @@ export default function DashboardPage() {
               <span className="text-[11px] font-mono text-white/50 tracking-[0.15em] uppercase">
                 Knowledge Graph · Entity Relations
               </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono text-white/25">8 nodes · 26 edges</span>
-              <motion.div
-                className="w-1.5 h-1.5 rounded-full bg-cyan-400/60"
-                animate={{ scale: [1, 1.4, 1], opacity: [0.6, 1, 0.6] }}
-                transition={{ duration: 2.5, repeat: Infinity }}
-              />
-            </div>
+            </div> 
           </div>
-          <div className="h-full" style={{ minHeight: '460px' }}>
-            <GraphViewInteractive />
+          <div className="flex-1 min-h-0 relative">
+            <GraphViewWorld />
           </div>
         </motion.div>
 
@@ -283,37 +273,12 @@ export default function DashboardPage() {
           initial={{ opacity: 0, x: 12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.35, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 min-h-0"
         >
-          {/* Risk Card wrapper */}
-          <div
-            className="rounded-2xl overflow-hidden"
-            style={{
-              border: '1px solid rgba(251,191,36,0.2)',
-              background: 'linear-gradient(135deg, rgba(251,191,36,0.05) 0%, rgba(10,15,26,0.95) 70%)',
-              boxShadow: '0 0 0 1px rgba(251,191,36,0.05), 0 20px 40px rgba(0,0,0,0.4)',
-            }}
-          >
-            <div
-              className="flex items-center justify-between px-4 py-2.5 border-b"
-              style={{ borderColor: 'rgba(251,191,36,0.12)', background: 'rgba(251,191,36,0.04)' }}
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-1 h-4 rounded-full bg-amber-400" />
-                <span className="text-[11px] font-mono text-white/50 tracking-[0.15em] uppercase">
-                  Risk Assessment
-                </span>
-              </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400/80 border border-amber-400/20">
-                MODERATE
-              </span>
-            </div>
-            <RiskCard score={riskScore} />
-          </div>
 
           {/* News Feed wrapper */}
           <div
-            className="flex-1 min-h-0 rounded-2xl overflow-hidden"
+            className="flex-1 rounded-2xl flex flex-col overflow-hidden"
             style={{
               border: '1px solid rgba(139,92,246,0.2)',
               background: 'linear-gradient(135deg, rgba(139,92,246,0.05) 0%, rgba(10,15,26,0.95) 70%)',
@@ -338,7 +303,7 @@ export default function DashboardPage() {
                 ● STREAMING
               </motion.div>
             </div>
-            <div className="overflow-hidden h-full">
+            <div className="flex-1 min-h-0 relative" style={{ position: 'relative' }}>
               <NewsFeed />
             </div>
           </div>

@@ -1,14 +1,17 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Radio } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-// MOCK_NEWS removed since API is integrated
+const sentimentColors: Record<string, { bg: string; text: string }> = {
+  positive: { bg: 'rgba(46,160,67,0.15)', text: '#7ee787' },
+  negative:  { bg: 'rgba(248,81,73,0.15)',  text: '#ff7b72' },
+  neutral:   { bg: 'rgba(139,148,158,0.15)',text: '#8b949e' },
+};
 
-const sentimentStyles: Record<string, string> = {
-  positive: 'bg-statusSuccess/20 text-[#7ee787]',
-  negative: 'bg-statusDanger/20 text-[#ff7b72]',
-  neutral: 'bg-[#8b949e]/20 text-[#8b949e]',
+const flagMap: Record<string, string> = {
+  IN: '🇮🇳', US: '🇺🇸', CN: '🇨🇳', RU: '🇷🇺',
+  GB: '🇬🇧', EU: '🇪🇺', ME: '🌍', JP: '🇯🇵',
+  DE: '🇩🇪', FR: '🇫🇷',
 };
 
 interface NewsItem {
@@ -27,68 +30,84 @@ export function NewsFeed() {
   useEffect(() => {
     const fetchNews = () => {
       fetch('/api/news')
-        .then(res => res.json())
-        .then(data => {
-          setNews(data);
-          setIsLoading(false);
-        })
+        .then(r => r.json())
+        .then(data => { setNews(Array.isArray(data) ? data : []); setIsLoading(false); })
         .catch(() => setIsLoading(false));
     };
-
-  fetchNews();
-
-  const interval = setInterval(fetchNews, 30000); // every 30 sec
-
-  return () => clearInterval(interval);
-}, []);
+    fetchNews();
+    const t = setInterval(fetchNews, 30000);
+    return () => clearInterval(t);
+  }, []);
 
   return (
-    <div className="glass-panel flex flex-col flex-1 overflow-hidden">
-      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-panelBorder">
-        <Radio size={14} className="text-statusDanger animate-pulse" />
-        <span className="font-semibold text-sm tracking-wide">Live Intel Feed</span>
-        <span className="ml-auto text-[10px] text-[#8b949e] font-mono">AI EXTRACTED</span>
-      </div>
-      <ul className="flex flex-col gap-3 overflow-y-auto news-list-scrollbar pr-1">
+    /* Outer wrapper fills 100% of whatever height the parent gives it */
+    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', padding: '12px 12px 12px 14px' }}>
+      {/* Scrollable list */}
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, paddingRight: 4 }}>
         {isLoading ? (
-          <div className="flex items-center justify-center p-6 mt-4">
-            <span className="text-[#8b949e] text-xs font-mono animate-pulse tracking-widest">FETCHING LIVE INTEL...</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            <span style={{ color: '#8b949e', fontSize: 11, fontFamily: 'monospace', letterSpacing: 3, animation: 'pulse 1.5s infinite' }}>
+              FETCHING LIVE INTEL...
+            </span>
           </div>
-        ) : (
-          Array.isArray(news) && news.map((item, i) => (
-            <motion.li
+        ) : news.length === 0 ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            <span style={{ color: '#8b949e', fontSize: 11, fontFamily: 'monospace', letterSpacing: 2 }}>NO INTEL AVAILABLE</span>
+          </div>
+        ) : news.map((item, i) => {
+          const s = sentimentColors[item.sentiment] || sentimentColors.neutral;
+          const flag = flagMap[item.country] || '🌐';
+          return (
+            <motion.div
               key={item.id}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.04 }}
-              className="p-3 bg-white/3 border border-panelBorder rounded-xl hover:bg-white/7 transition-colors cursor-pointer group"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.03, duration: 0.3 }}
+              style={{
+                padding: '10px 12px',
+                borderRadius: 10,
+                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'rgba(255,255,255,0.02)',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
             >
-              <div className="flex justify-between items-center text-[11px] text-[#8b949e] mb-1.5 font-medium">
-                <span className="flex items-center gap-1.5">
-                  <span className="text-sm">
-                    {item.country === 'IN' && '🇮🇳'}
-                    {item.country === 'US' && '🇺🇸'}
-                    {item.country === 'CN' && '🇨🇳'}
-                    {item.country === 'RU' && '🇷🇺'}
-                  </span>
+              {/* Top row */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: '#8b949e', fontFamily: 'monospace' }}>
+                  <span style={{ fontSize: 13 }}>{flag}</span>
                   {item.source}
                 </span>
-                <span className="opacity-70 group-hover:opacity-100 transition-opacity">{item.time}</span>
+                <span style={{ fontSize: 9, color: '#8b949e66', fontFamily: 'monospace' }}>{item.time}</span>
               </div>
-              <p className="text-[13px] leading-relaxed text-foreground mb-3">{item.title}</p>
-              
-              <div className="flex items-center gap-2">
-                <span className={`inline-block text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest ${sentimentStyles[item.sentiment] || sentimentStyles.neutral}`}>
+
+              {/* Title */}
+              <p style={{ fontSize: 12, lineHeight: 1.5, color: 'rgba(240,246,252,0.88)', margin: '0 0 8px 0' }}>
+                {item.title}
+              </p>
+
+              {/* Badges */}
+              <div style={{ display: 'flex', gap: 6 }}>
+                <span style={{
+                  fontSize: 8, padding: '2px 8px', borderRadius: 20, fontWeight: 700,
+                  letterSpacing: 1, textTransform: 'uppercase',
+                  background: s.bg, color: s.text,
+                }}>
                   {item.sentiment}
                 </span>
-                <span className="inline-block text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest bg-white/5 text-[#8b949e] border border-white/5">
+                <span style={{
+                  fontSize: 8, padding: '2px 8px', borderRadius: 20, fontWeight: 700,
+                  letterSpacing: 1, textTransform: 'uppercase',
+                  background: 'rgba(255,255,255,0.05)', color: '#8b949e',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                }}>
                   {item.country}
                 </span>
               </div>
-            </motion.li>
-          ))
-        )}
-      </ul>
+            </motion.div>
+          );
+        })}
+      </div>
     </div>
   );
 }
