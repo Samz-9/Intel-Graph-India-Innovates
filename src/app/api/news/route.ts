@@ -87,8 +87,7 @@ export async function GET() {
     });
 
     // sort latest
-    articles.sort((a, b) => b.time - a.time);
-
+articles.sort((a, b) => b.time.getTime() - a.time.getTime());
     const final = articles.slice(0, 20).map(a => ({
       ...a,
       time: formatTime(a.time),
